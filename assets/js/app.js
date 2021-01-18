@@ -1,8 +1,4 @@
-// data
-var dataArray = [1, 2, 3];
-var dataCategories = [4, 5, 6];
-
-function UpdatePlot(xData,yData,abbr) {
+function UpdatePlot(data,xVal,yVal) {
 
     // if the SVG area isn't empty when the browser loads,
     // remove it and replace it with a resized version of the chart
@@ -20,42 +16,53 @@ function UpdatePlot(xData,yData,abbr) {
   var margin = {
     top: 50,
     right: 50,
-    bottom: 50,
-    left: 50
+    bottom: 100,
+    left: 100
   };
 
     // chart area minus margins
-  var chartHeight = svgHeight - margin.top - margin.bottom;
-  var chartWidth = svgWidth - margin.left - margin.right;
+    var chartHeight = svgHeight - margin.top - margin.bottom;
+    var chartWidth = svgWidth - margin.left - margin.right;
 
     // create svg container
-  var svg = d3.select("#scatter").append("svg")
+    var svg = d3.select("#scatter").append("svg")
         .attr("height", svgHeight)
         .attr("width", svgWidth);
 
     // shift everything over by the margins
-  var chartGroup = svg.append("g")
+    var chartGroup = svg.append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+    var xData=[];
+    var yData=[];
+
+    data.forEach( function(d){
+        xData.push(d[xVal]);
+        yData.push(d[yVal]);
+    });
+
+    var yMin=d3.min(yData);
+    var yMax=d3.max(yData);
+    var yBuffer = (yMax-yMin)/16;
     // scale y to chart height
-  var yScale = d3.scaleLinear()
-        .domain([0, d3.max(yData)])
+    var yScale = d3.scaleLinear()
+        .domain([yMin-yBuffer,yMax+yBuffer])
         .range([chartHeight, 0]);
 
-  var xMin=d3.min(xData);
-  var xMax=d3.max(xData);
-  var xBuffer = (xMax-xMin)/16;
+    var xMin=d3.min(xData);
+    var xMax=d3.max(xData);
+    var xBuffer = (xMax-xMin)/16;
     // scale x to chart width
-  var xScale = d3.scaleLinear()
+    var xScale = d3.scaleLinear()
         .domain([xMin-xBuffer,xMax+xBuffer])
         .range([0, chartWidth]);
 
     // create axes
-  var yAxis = d3.axisLeft(yScale);
-  var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
+    var xAxis = d3.axisBottom(xScale);
 
     // set x to the bottom of the chart
-  chartGroup.append("g")
+    chartGroup.append("g")
         .attr("transform", `translate(0, ${chartHeight})`)
         .call(xAxis);
 
@@ -63,21 +70,43 @@ function UpdatePlot(xData,yData,abbr) {
   chartGroup.append("g")
         .call(yAxis);
 
+    // Create group for x-axis labels
+    var xLabelsGroup = chartGroup.append("g")
+        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
+    var ageLabel = xLabelsGroup.append("text")
+        .attr("x", 0)
+        .attr("y", 20)
+        .attr("value", "age") // value to grab for event listener
+        .classed("active", true)
+        .text("Average Age");
+    var incomeLabel = xLabelsGroup.append("text")
+        .attr("x", 0)
+        .attr("y", 40)
+        .attr("value", "income") // value to grab for event listener
+        .classed("inactive", true)
+        .text("Median Household Income");
+    var healthcareLabel = xLabelsGroup.append("text")
+        .attr("x", 0)
+        .attr("y", 60)
+        .attr("value", "healthcare") // value to grab for event listener
+        .classed("inactive", true)
+        .text("People with Healthcare (%)");
+
   chartGroup.selectAll("circle")
-        .data(yData)
+        .data(data)
         .enter()
         .append("circle")
-        .attr("cx", (d, i) => xScale(xData[i]))
-        .attr("cy", d => yScale(d))
-        .attr("r", 20)
+        .attr("cx", d => xScale(d[xVal]))
+        .attr("cy", d => yScale(d[yVal]))
+        .attr("r", 12)
         .attr("class","stateCircle");
 
-  yData.forEach( function(d,i){
+  data.forEach( function(d){
     chartGroup.append("text")
-        .attr("x", xScale(xData[i]))
-        .attr("y", yScale(d)+5)
+        .attr("x", xScale(d[xVal]))
+        .attr("y", yScale(d[yVal])+4)
         .attr("class","stateText")
-        .text(abbr[i]);
+        .text(d.abbr);
   });
 
 }
@@ -87,30 +116,18 @@ function UpdatePlot(xData,yData,abbr) {
 // Retrieve data from the CSV file and execute everything below
 d3.csv("assets/data/data.csv").then(function(data, err) {
     if (err) throw err;
-    
-    var abbr = [];
-    var age = [];
-    var income = [];
-    var healthcare = [];
-    var smokes = [];
-    var obesity = [];
-    var poverty = [];
 
     // parse data
     data.forEach(function(data) {
-      abbr.push(data.abbr);
-      age.push(+data.age);
-      income.push(+data.income);
-      healthcare.push(+data.healthcare);
-      smokes.push(+data.smokes);
-      obesity.push(+data.obesity);
-      poverty.push(+data.poverty);
+      data.age=+data.age;
+      data.income=+data.income;
+      data.healthcare=+data.healthcare;
+      data.smokes=+data.smokes;
+      data.obesity=+data.obesity;
+      data.poverty=+data.poverty;
     });
 
-    UpdatePlot(age,smokes,abbr)
-
-
-
+    UpdatePlot(data,"age","smokes")
 
 }).catch(function(error) {
     console.log(error);
