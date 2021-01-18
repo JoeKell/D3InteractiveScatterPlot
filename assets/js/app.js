@@ -200,6 +200,40 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
             UpdatePlot(data,value,chosenYAxis);
         }
     });
+
+    // y axis labels event listener
+    yLabelsGroup.selectAll("text")
+    .on("click", function() {
+        // get value of selection
+        var value = d3.select(this).attr("value");
+        if (value !== chosenYAxis) {
+
+            // replaces chosenXAxis with value
+            chosenYAxis = value;
+
+            // changes classes to change bold text
+            switch(chosenYAxis) {
+                case "smokes":
+                    smokesLabel.classed("active", true).classed("inactive", false);
+                    obesityLabel.classed("active", false).classed("inactive", true);
+                    povertyLabel.classed("active", false).classed("inactive", true);
+                break;
+                case "obesity":
+                    obesityLabel.classed("active", true).classed("inactive", false);
+                    smokesLabel.classed("active", false).classed("inactive", true);
+                    povertyLabel.classed("active", false).classed("inactive", true);
+                break;
+                case "poverty":
+                    povertyLabel.classed("active", true).classed("inactive", false);
+                    smokesLabel.classed("active", false).classed("inactive", true);
+                    obesityLabel.classed("active", false).classed("inactive", true);
+                break;
+            }
+
+            UpdatePlot(data,chosenXAxis,value);
+        }
+    });
+
 }).catch(function(error) {
     console.log(error);
 });
