@@ -14,10 +14,10 @@ function UpdatePlot(data,xVal,yVal) {
 
     // margins
   var margin = {
-    top: 50,
+    top: 80,
     right: 50,
     bottom: 100,
-    left: 100
+    left: 105
   };
 
     // chart area minus margins
@@ -67,8 +67,16 @@ function UpdatePlot(data,xVal,yVal) {
         .call(xAxis);
 
     // set y to the y axis
-  chartGroup.append("g")
+    chartGroup.append("g")
         .call(yAxis);
+
+    // Create chart title
+    chartGroup.append("text")
+        .attr("transform", `translate(${chartWidth / 2}, 0)`)
+        .attr("x",0)
+        .attr("y",-40)
+        .classed("title", true)
+        .text("Relationships Between Census Data");
 
     // Create group for x-axis labels
     var xLabelsGroup = chartGroup.append("g")
@@ -92,7 +100,29 @@ function UpdatePlot(data,xVal,yVal) {
         .classed("inactive", true)
         .text("People with Healthcare (%)");
 
-  chartGroup.selectAll("circle")
+    // Create group for x-axis labels
+    var yLabelsGroup = chartGroup.append("g")
+        .attr("transform", "rotate(-90)");
+    var smokesLabel = yLabelsGroup.append("text")
+        .attr("x", 0 - chartHeight/2)
+        .attr("y", -40)
+        .attr("value", "age") // value to grab for event listener
+        .classed("active", true)
+        .text("Smokers (%)");
+    var obesityLabel = yLabelsGroup.append("text")
+        .attr("x", 0 - chartHeight/2)
+        .attr("y", -65)
+        .attr("value", "income") // value to grab for event listener
+        .classed("inactive", true)
+        .text("Obesity (%)");
+    var povertyLabel = yLabelsGroup.append("text")
+        .attr("x", 0 - chartHeight/2)
+        .attr("y", -90)
+        .attr("value", "healthcare") // value to grab for event listener
+        .classed("inactive", true)
+        .text("Poverty (%)");
+
+    chartGroup.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
@@ -101,13 +131,13 @@ function UpdatePlot(data,xVal,yVal) {
         .attr("r", 12)
         .attr("class","stateCircle");
 
-  data.forEach( function(d){
-    chartGroup.append("text")
-        .attr("x", xScale(d[xVal]))
-        .attr("y", yScale(d[yVal])+4)
-        .attr("class","stateText")
-        .text(d.abbr);
-  });
+    data.forEach( function(d){
+        chartGroup.append("text")
+            .attr("x", xScale(d[xVal]))
+            .attr("y", yScale(d[yVal])+4)
+            .attr("class","stateText")
+            .text(d.abbr);
+    });
 
 }
 
