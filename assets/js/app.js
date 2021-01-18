@@ -2,7 +2,7 @@
 var dataArray = [1, 2, 3];
 var dataCategories = [4, 5, 6];
 
-function makeResponsive() {
+function UpdatePlot(xData,yData,abbr) {
 
     // if the SVG area isn't empty when the browser loads,
     // remove it and replace it with a resized version of the chart
@@ -39,11 +39,11 @@ function makeResponsive() {
 
     // scale y to chart height
   var yScale = d3.scaleLinear()
-        .domain([0, d3.max(dataArray)])
+        .domain([0, d3.max(yData)])
         .range([chartHeight, 0]);
 
-  var xMin=d3.min(dataCategories);
-  var xMax=d3.max(dataCategories);
+  var xMin=d3.min(xData);
+  var xMax=d3.max(xData);
   var xBuffer = (xMax-xMin)/16;
     // scale x to chart width
   var xScale = d3.scaleLinear()
@@ -64,22 +64,46 @@ function makeResponsive() {
         .call(yAxis);
 
   chartGroup.selectAll("circle")
-        .data(dataArray)
+        .data(yData)
         .enter()
         .append("circle")
-        .attr("cx", (d, i) => xScale(dataCategories[i]))
+        .attr("cx", (d, i) => xScale(xData[i]))
         .attr("cy", d => yScale(d))
         .attr("r", 20)
         .attr("class","stateCircle");
 
-  dataArray.forEach( function(d,i){
+  yData.forEach( function(d,i){
     chartGroup.append("text")
-        .attr("x", xScale(dataCategories[i]))
+        .attr("x", xScale(xData[i]))
         .attr("y", yScale(d)+5)
         .attr("class","stateText")
-        .text("HI");//Enter state abr here dynamically
+        .text(abbr[i]);
   });
 
 }
 
 makeResponsive();
+
+
+// Retrieve data from the CSV file and execute everything below
+d3.csv("data.csv").then(function(data, err) {
+    if (err) throw err;
+  
+    // parse data
+    data.forEach(function(data) {
+      data.age = +data.age;
+      data.income = +data.income;
+      data.healthcare = +data.healthcare;
+      data.smokes= +data.smokes;
+      data.obesity= +data.obesity;
+      data.poverty= +data.poverty;
+    });
+
+    UpdatePlot(data.age,data.smokes,data.abbr)
+
+
+
+
+}).catch(function(error) {
+    console.log(error);
+});
