@@ -128,7 +128,7 @@ function UpdatePlot(data,xVal,yVal) {
     variableChartGroup.append("g")
     .call(yAxis);
 
-    variableChartGroup.selectAll("circle")
+    var circlesGroup = variableChartGroup.selectAll("circle")
     .data(data)
     .enter()
     .append("circle")
@@ -143,6 +143,22 @@ function UpdatePlot(data,xVal,yVal) {
         .attr("y", yScale(d[yVal])+4)
         .attr("class","stateText")
         .text(d.abbr);
+    });
+
+    var toolTip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([0, 0])
+    .html(function(data) {
+        return (`${data.state}<br>${xVal}: ${data[xVal]}<br>${yVal}: ${data[yVal]}`);
+    });
+
+    circlesGroup.call(toolTip);
+  
+    circlesGroup.on("mouseover", function(data) {
+        toolTip.show(data);
+    })
+    .on("mouseout", function(data) {
+        toolTip.hide(data);
     });
 
 }
