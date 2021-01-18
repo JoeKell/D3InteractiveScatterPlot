@@ -1,6 +1,6 @@
 // data
 var dataArray = [1, 2, 3];
-var dataCategories = ["one", "two", "three"];
+var dataCategories = [4, 5, 6];
 
 function makeResponsive() {
 
@@ -13,8 +13,8 @@ function makeResponsive() {
   }
 
     // svg params
-  var svgHeight = window.innerHeight;
-  var svgWidth = window.innerWidth;
+  var svgHeight = 800;
+  var svgWidth = 800;
 
     // margins
   var margin = {
@@ -29,7 +29,7 @@ function makeResponsive() {
   var chartWidth = svgWidth - margin.left - margin.right;
 
     // create svg container
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select("#scatter").append("svg")
         .attr("height", svgHeight)
         .attr("width", svgWidth);
 
@@ -42,11 +42,13 @@ function makeResponsive() {
         .domain([0, d3.max(dataArray)])
         .range([chartHeight, 0]);
 
+  var xMin=d3.min(dataCategories);
+  var xMax=d3.max(dataCategories);
+  var xBuffer = (xMax-xMin)/16;
     // scale x to chart width
-  var xScale = d3.scaleBand()
-        .domain(dataCategories)
-        .range([0, chartWidth])
-        .padding(0.1);
+  var xScale = d3.scaleLinear()
+        .domain([xMin-xBuffer,xMax+xBuffer])
+        .range([0, chartWidth]);
 
     // create axes
   var yAxis = d3.axisLeft(yScale);
@@ -61,21 +63,23 @@ function makeResponsive() {
   chartGroup.append("g")
         .call(yAxis);
 
-
   chartGroup.selectAll("circle")
         .data(dataArray)
         .enter()
         .append("circle")
-        .classed("stateCircle")
-        .classed("stateText")
-        .text("HI")
         .attr("cx", (d, i) => xScale(dataCategories[i]))
-        .attr("cy", d => yScale(d))//chartHeight - yScale(d)
+        .attr("cy", d => yScale(d))
         .attr("r", 20)
+        .attr("class","stateCircle");
+
+  dataArray.forEach( function(d,i){
+    chartGroup.append("text")
+        .attr("x", xScale(dataCategories[i]))
+        .attr("y", yScale(d)+5)
+        .attr("class","stateText")
+        .text("HI");//Enter state abr here dynamically
+  });
+
 }
 
 makeResponsive();
-
-// Event listener for window resize.
-// When the browser window is resized, makeResponsive() is called.
-d3.select(window).on("resize", makeResponsive);
