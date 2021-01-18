@@ -14,7 +14,7 @@ function UpdatePlot(xData,yData,abbr) {
 
     // svg params
   var svgHeight = 800;
-  var svgWidth = 800;
+  var svgWidth = 960;
 
     // margins
   var margin = {
@@ -82,24 +82,32 @@ function UpdatePlot(xData,yData,abbr) {
 
 }
 
-makeResponsive();
 
 
 // Retrieve data from the CSV file and execute everything below
-d3.csv("data.csv").then(function(data, err) {
+d3.csv("assets/data/data.csv").then(function(data, err) {
     if (err) throw err;
-  
+    
+    var abbr = [];
+    var age = [];
+    var income = [];
+    var healthcare = [];
+    var smokes = [];
+    var obesity = [];
+    var poverty = [];
+
     // parse data
     data.forEach(function(data) {
-      data.age = +data.age;
-      data.income = +data.income;
-      data.healthcare = +data.healthcare;
-      data.smokes= +data.smokes;
-      data.obesity= +data.obesity;
-      data.poverty= +data.poverty;
+      abbr.push(data.abbr);
+      age.push(+data.age);
+      income.push(+data.income);
+      healthcare.push(+data.healthcare);
+      smokes.push(+data.smokes);
+      obesity.push(+data.obesity);
+      poverty.push(+data.poverty);
     });
 
-    UpdatePlot(data.age,data.smokes,data.abbr)
+    UpdatePlot(age,smokes,abbr)
 
 
 
