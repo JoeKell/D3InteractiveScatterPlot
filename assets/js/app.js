@@ -19,7 +19,6 @@ var svg = d3.select("#scatter").append("svg")
 var chartGroup = svg.append("g")
 .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-
 // chart area minus margins
 var chartHeight = svgHeight - margin.top - margin.bottom;
 var chartWidth = svgWidth - margin.left - margin.right;
@@ -31,8 +30,6 @@ chartGroup.append("text")
 .attr("y",-40)
 .classed("title", true)
 .text("Relationships Between Census Data");
-
-var variableChartGroup = chartGroup.append("g");
 
 // Create group for x-axis labels
 var xLabelsGroup = chartGroup.append("g")
@@ -82,90 +79,6 @@ var povertyLabel = yLabelsGroup.append("text")
 var chosenXAxis = "age";
 var chosenYAxis = "smokes";
 
-
-function UpdatePlot(data,xVal,yVal) {
-
-    variableChartGroup.html("")
-
-    var xData=[];
-    var yData=[];
-
-    data.forEach( function(d){
-        xData.push(d[xVal]);
-        yData.push(d[yVal]);
-    });
-
-    // scale y to chart height
-    var yMin=d3.min(yData);
-    var yMax=d3.max(yData);
-    var yBuffer = (yMax-yMin)/16;
-    var yScale = d3.scaleLinear()
-        .domain([yMin-yBuffer,yMax+yBuffer])
-        .range([chartHeight, 0]);
-
-
-    // scale x to chart width
-    var xMin=d3.min(xData);
-    var xMax=d3.max(xData);
-    var xBuffer = (xMax-xMin)/16;
-    var xScale = d3.scaleLinear()
-    .domain([xMin-xBuffer,xMax+xBuffer])
-    .range([0, chartWidth]);
-
-    // create axes
-    var yAxis = d3.axisLeft(yScale);
-    var xAxis = d3.axisBottom(xScale);
-
-    // set x to the bottom of the chart
-    variableChartGroup.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(xAxis);
-    
-    // set y to the y axis
-    variableChartGroup.append("g")
-    .call(yAxis);
-
-    // var circlesGroup=variableChartGroup.append("g")
-
-    var circleGroup = variableChartGroup.append("g").selectAll("g")
-    .data(data)
-    .enter()
-    .append("g")
-
-    circleGroup
-    .append("circle")
-    .attr("cx", d => xScale(d[xVal]))
-    .attr("cy", d => yScale(d[yVal]))
-    .attr("r", 12)
-    .attr("class","stateCircle")
-
-    circleGroup
-    .append("text")
-    .attr("x", d => xScale(d[xVal]))
-    .attr("y", d => yScale(d[yVal])+4)
-    .attr("class","stateText")
-    .text(d => d.abbr);
-
-    var toolTip = d3.tip()
-    .attr("class", "d3-tip")
-    .offset([0, 0])
-    .html(function(data) {
-        return (`${data.state}<br>${xVal}: ${data[xVal]}<br>${yVal}: ${data[yVal]}`);
-    });
-
-    circleGroup.call(toolTip);
-  
-    circleGroup.on("mouseover", function(data) {
-        toolTip.show(data);
-    })
-    .on("mouseout", function(data) {
-        toolTip.hide(data);
-    });
-
-}
-
-
-
 // Retrieve data from the CSV file and execute everything below
 d3.csv("assets/data/data.csv").then(function(data, err) {
     if (err) throw err;
@@ -180,16 +93,84 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
       data.poverty=+data.poverty;
     });
 
-    UpdatePlot(data,"age","smokes");
+    //Set values for generating the initial plot
+    xVal="age";
+    yVal="smokes";
 
+    // scale y to chart height
+    var yMin=d3.min(data,d=>d[yVal]);
+    var yMax=d3.max(data,d=>d[yVal]);
+    var yBuffer = (yMax-yMin)/16;
+    var yScale = d3.scaleLinear()
+    .domain([yMin-yBuffer,yMax+yBuffer])
+    .range([chartHeight, 0]);
 
+    // scale x to chart width
+    var xMin=d3.min(data,d=>d[xVal]);
+    var xMax=d3.max(data,d=>d[xVal]);
+    var xBuffer = (xMax-xMin)/16;
+    var xScale = d3.scaleLinear()
+    .domain([xMin-xBuffer,xMax+xBuffer])
+    .range([0, chartWidth]);
 
+    // create axes
+    var yAxis = d3.axisLeft(yScale);
+    var xAxis = d3.axisBottom(xScale);
+
+    // set x to the bottom of the chart
+    var xAxisGroup=chartGroup.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(xAxis);
+    
+    // set y to the y axis
+    var yAxisGroup=chartGroup.append("g")
+    .call(yAxis);
+
+    // Each group will contain a circle and a text for a state
+    var circleGroup = chartGroup.append("g").selectAll("g")
+    .data(data)
+    .enter()
+    .append("g")
+
+    // Add the circles
+    circleGroup
+    .append("circle")
+    .attr("cx", d => xScale(d[xVal]))
+    .attr("cy", d => yScale(d[yVal]))
+    .attr("r", 12)
+    .attr("class","stateCircle")
+
+    // Add the text
+    circleGroup
+    .append("text")
+    .attr("x", d => xScale(d[xVal]))
+    .attr("y", d => yScale(d[yVal])+4)
+    .attr("class","stateText")
+    .text(d => d.abbr);
+
+    // Apply toolTips
+    var toolTip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([0, 0])
+    .html(function(data) {
+        return (`${data.state}<br>${xVal}: ${data[xVal]}<br>${yVal}: ${data[yVal]}`);
+    });
+
+    circleGroup.call(toolTip);
+    
+    circleGroup.on("mouseover", function(data) {
+        toolTip.show(data);
+    })
+    .on("mouseout", function(data) {
+        toolTip.hide(data);
+    });
 
     // x axis labels event listener
     xLabelsGroup.selectAll("text")
     .on("click", function() {
         // get value of selection
         var value = d3.select(this).attr("value");
+        var axis = "x";
         if (value !== chosenXAxis) {
 
             // replaces chosenXAxis with value
@@ -213,8 +194,51 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
                     incomeLabel.classed("active", false).classed("inactive", true);
                 break;
             }
+            
+            // New scale for the changed axis
+            var Min=d3.min(data,d=>d[value]);
+            var Max=d3.max(data,d=>d[value]);
+            var Buffer = (Max-Min)/16;
+            var Scale = d3.scaleLinear()
+            .domain([Min-Buffer,Max+Buffer])
+            .range([axis == "y" ? chartHeight : 0, axis == "y" ? 0 : chartWidth]);
 
-            UpdatePlot(data,value,chosenYAxis);
+            // create axes
+            var Axis = axis == "y" ? d3.axisLeft(Scale) : d3.axisBottom(Scale);
+
+            // Transition the new axis
+            axis == "y" ? yAxisGroup : xAxisGroup
+            .transition()
+            .duration(500)
+            .call(Axis);
+
+            // Transition the circles
+            circleGroup.selectAll("circle")
+            .transition()
+            .duration(1000)
+            .attr(axis == "y" ? "cy" : "cx", d => Scale(d[value]));
+
+            // Transition the text
+            circleGroup.selectAll("text")
+            .transition()
+            .duration(1000)
+            .attr(axis == "y" ? "y" : "x", d => axis == "y" ? Scale(d[value])+4 : Scale(d[value]));
+
+            // Apply toolTips
+            var toolTip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([0, 0])
+            .html(function(data) {
+                return (`${data.state}<br>${chosenXAxis}: ${data[chosenXAxis]}<br>${chosenYAxis}: ${data[chosenYAxis]}`);
+            });
+
+            circleGroup.call(toolTip);
+            circleGroup.on("mouseover", function(data) {
+                toolTip.show(data);
+            })
+            .on("mouseout", function(data) {
+                toolTip.hide(data);
+            });
         }
     });
 
@@ -223,6 +247,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .on("click", function() {
         // get value of selection
         var value = d3.select(this).attr("value");
+        var axis = "y";
         if (value !== chosenYAxis) {
 
             // replaces chosenXAxis with value
@@ -247,7 +272,50 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
                 break;
             }
 
-            UpdatePlot(data,chosenXAxis,value);
+            // New scale for the changed axis
+            var Min=d3.min(data,d=>d[value]);
+            var Max=d3.max(data,d=>d[value]);
+            var Buffer = (Max-Min)/16;
+            var Scale = d3.scaleLinear()
+            .domain([Min-Buffer,Max+Buffer])
+            .range([axis == "y" ? chartHeight : 0, axis == "y" ? 0 : chartWidth]);
+
+            // create axes
+            var Axis = axis == "y" ? d3.axisLeft(Scale) : d3.axisBottom(Scale);
+
+            // Transition the new axis
+            yAxisGroup
+            .transition()
+            .duration(500)
+            .call(Axis);
+            
+            // Transition the circles
+            circleGroup.selectAll("circle")
+            .transition()
+            .duration(1000)
+            .attr(axis == "y" ? "cy" : "cx", d => Scale(d[value]));
+
+            // Transition the text
+            circleGroup.selectAll("text")
+            .transition()
+            .duration(1000)
+            .attr(axis == "y" ? "y" : "x", d => axis == "y" ? Scale(d[value])+4 : Scale(d[value]));
+
+            // Apply toolTips
+            var toolTip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([0, 0])
+            .html(function(data) {
+                return (`${data.state}<br>${chosenXAxis}: ${data[chosenXAxis]}<br>${chosenYAxis}: ${data[chosenYAxis]}`);
+            });
+
+            circleGroup.call(toolTip);
+            circleGroup.on("mouseover", function(data) {
+                toolTip.show(data);
+            })
+            .on("mouseout", function(data) {
+                toolTip.hide(data);
+            });
         }
     });
 
