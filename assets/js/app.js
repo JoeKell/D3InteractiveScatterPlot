@@ -84,6 +84,7 @@ var chosenYAxis = "smokes";
 
 
 function UpdatePlot(data,xVal,yVal) {
+
     variableChartGroup.html("")
 
     var xData=[];
@@ -93,8 +94,6 @@ function UpdatePlot(data,xVal,yVal) {
         xData.push(d[xVal]);
         yData.push(d[yVal]);
     });
-
-
 
     // scale y to chart height
     var yMin=d3.min(yData);
@@ -128,48 +127,24 @@ function UpdatePlot(data,xVal,yVal) {
 
     // var circlesGroup=variableChartGroup.append("g")
 
-    var groupsGroup = variableChartGroup.append("g").selectAll("g")
+    var circleGroup = variableChartGroup.append("g").selectAll("g")
     .data(data)
     .enter()
     .append("g")
 
-    
-    groupsGroup
+    circleGroup
     .append("circle")
     .attr("cx", d => xScale(d[xVal]))
     .attr("cy", d => yScale(d[yVal]))
     .attr("r", 12)
     .attr("class","stateCircle")
 
-    groupsGroup
+    circleGroup
     .append("text")
     .attr("x", d => xScale(d[xVal]))
     .attr("y", d => yScale(d[yVal])+4)
     .attr("class","stateText")
     .text(d => d.abbr);
-
-    // circlesGroup.forEach( function(d){
-    //     select("g").append("circle")
-    //     .attr("cx", d => xScale(d[xVal]))
-    //     .attr("cy", d => yScale(d[yVal]))
-    //     .attr("r", 12)
-    //     .attr("class","stateCircle");
-    // });
-
-    // circlesGroup.selectAll("g").selectAll("circle")
-    // .append("circle")
-    // .attr("cx", d => xScale(d[xVal]))
-    // .attr("cy", d => yScale(d[yVal]))
-    // .attr("r", 12)
-    // .attr("class","stateCircle");
-
-    // data.forEach( function(d){
-    //     variableChartGroup.append("text")
-    //     .attr("x", xScale(d[xVal]))
-    //     .attr("y", yScale(d[yVal])+4)
-    //     .attr("class","stateText")
-    //     .text(d.abbr);
-    // });
 
     var toolTip = d3.tip()
     .attr("class", "d3-tip")
@@ -178,9 +153,9 @@ function UpdatePlot(data,xVal,yVal) {
         return (`${data.state}<br>${xVal}: ${data[xVal]}<br>${yVal}: ${data[yVal]}`);
     });
 
-    groupsGroup.call(toolTip);
+    circleGroup.call(toolTip);
   
-    groupsGroup.on("mouseover", function(data) {
+    circleGroup.on("mouseover", function(data) {
         toolTip.show(data);
     })
     .on("mouseout", function(data) {
