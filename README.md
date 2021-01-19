@@ -5,7 +5,7 @@
 In this project, I built an interactive scatterplot to explore the relationships between aggregated census data by state. The final application is hosted on Github Pages at <https://joekell.github.io/D3InteractiveScatterPlot/>.
 
 ### Using the Final Application
-The application can be reached at <https://joekell.github.io/D3InteractiveScatterPlot/> and is hosted on Github Pages. When opening the dashboard, the x-axis of the scatter plot represents the average age of people in the state and the y-axis represents the percent people that smoke:
+The application can be reached at <https://joekell.github.io/D3InteractiveScatterPlot/> and is hosted on Github Pages. When opening the dashboard, the x-axis of the scatter plot represents the average age of people in the state and the y-axis represents the percent of people that smoke:
 
   ![Opening Dashboard](FinalImages/SiteLoad.PNG)
 
