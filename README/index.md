@@ -1,3 +1,5 @@
+[View my GitHub Portfolio](https://joekell.github.io/)
+
 # D3 Challenge - Interactive Census Scatter Plot
 
 ## Summary
