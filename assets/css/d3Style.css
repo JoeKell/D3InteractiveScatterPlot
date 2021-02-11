@@ -6,7 +6,7 @@
 
 .active {
   font-weight: bold;
-  fill: #000;
+  fill: #e8e8e8;
   transition: fill 0.3s ease-out;
   text-anchor: middle;
 }
@@ -14,13 +14,13 @@
 .title {
   font-weight: bold;
   font-size: 14pt;
-  fill: #000;
+  fill: #e8e8e8;;
   text-anchor: middle;
 }
 
 .inactive {
   font-weight: lighter;
-  fill: #000;
+  fill: #e8e8e8;;
   transition: fill 0.3s ease-out;
   text-anchor: middle;
 }
@@ -34,14 +34,14 @@
 .stateText {
   cursor: default;
   font-family: sans-serif;
-  fill: #fff;
+  fill: #252525;
   text-anchor: middle;
   font-size: 12px;
 }
 
 .stateCircle {
-  fill: #89bdd3;
-  stroke: #e3e3e3;
+  fill: #ffcc00;
+  stroke: #e8e8e8;
 }
 
 .chart {
@@ -54,10 +54,10 @@
   font-size: 12px;
   line-height: 1;
   line-height: 1.5em;
-  color: #fff;
+  color: #e8e8e8;
   text-align: center;
   text-transform: capitalize;
-  background: rgba(0, 0, 0, 0.8);
+  background: #000000;
   border-radius: 4px;
 }
 
